@@ -1,0 +1,287 @@
+
+using System;
+using System.Collections.Generic;
+
+public abstract class LibraryItem
+{
+    public string Title { get; protected set; }
+    public string Author { get; protected set; }
+    public int Year { get; protected set; }
+    public bool IsAvailable { get; protected set; }
+    public string ItemId { get; protected set; }
+
+    protected LibraryItem(string title, string author, int year, string itemId)
+    {
+        Title = title;
+        Author = author;
+        Year = year;
+        ItemId = itemId;
+        IsAvailable = true;
+    }
+
+    public virtual void CheckOut()
+    {
+        if (!IsAvailable)
+            throw new InvalidOperationException($"Материал '{Title}' уже выдан");
+
+        IsAvailable = false;
+        Console.WriteLine($"Материал '{Title}' выдан");
+    }
+
+    public virtual void Return()
+    {
+        if (IsAvailable)
+            throw new InvalidOperationException($"Материал '{Title}' уже в библиотеке");
+
+        IsAvailable = true;
+        Console.WriteLine($"Материал '{Title}' возвращен");
+    }
+
+    public virtual void DisplayInfo()
+    {
+        Console.WriteLine($"=== Информация о материале ===");
+        Console.WriteLine($"ID: {ItemId}");
+        Console.WriteLine($"Название: {Title}");
+        Console.WriteLine($"Автор/Создатель: {Author}");
+        Console.WriteLine($"Год: {Year}");
+        Console.WriteLine($"Статус: {(IsAvailable ? "Доступен" : "Выдан")}");
+    }
+
+    public abstract bool MatchesSearch(string searchTerm);
+}
+
+public class Book : LibraryItem
+{
+    public int PageCount { get; private set; }
+    public string ISBN { get; private set; }
+    public string Genre { get; private set; }
+
+    public Book(string title, string author, int year, string itemId, int pageCount, string isbn, string genre)
+        : base(title, author, year, itemId)
+    {
+        PageCount = pageCount;
+        ISBN = isbn;
+        Genre = genre;
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Тип: Книга");
+        Console.WriteLine($"Жанр: {Genre}");
+        Console.WriteLine($"Страниц: {PageCount}");
+        Console.WriteLine($"ISBN: {ISBN}");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override bool MatchesSearch(string searchTerm)
+    {
+        return Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Genre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               ISBN.Contains(searchTerm);
+    }
+}
+
+public class Magazine : LibraryItem
+{
+    public int IssueNumber { get; private set; }
+    public string Periodicity { get; private set; }
+    public string Publisher { get; private set; }
+
+    public Magazine(string title, string publisher, int year, string itemId, int issueNumber, string periodicity)
+        : base(title, publisher, year, itemId)
+    {
+        IssueNumber = issueNumber;
+        Periodicity = periodicity;
+        Publisher = publisher;
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Тип: Журнал");
+        Console.WriteLine($"Издательство: {Publisher}");
+        Console.WriteLine($"Номер выпуска: {IssueNumber}");
+        Console.WriteLine($"Периодичность: {Periodicity}");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override bool MatchesSearch(string searchTerm)
+    {
+        return Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Publisher.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Periodicity.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+public class DVD : LibraryItem
+{
+    public int DurationMinutes { get; private set; }
+    public string Rating { get; private set; }
+    public string FilmStudio { get; private set; }
+
+    public DVD(string title, string director, int year, string itemId, int durationMinutes, string rating, string filmStudio)
+        : base(title, director, year, itemId)
+    {
+        DurationMinutes = durationMinutes;
+        Rating = rating;
+        FilmStudio = filmStudio;
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Тип: DVD");
+        Console.WriteLine($"Режиссер: {Author}");
+        Console.WriteLine($"Студия: {FilmStudio}");
+        Console.WriteLine($"Продолжительность: {DurationMinutes} мин.");
+        Console.WriteLine($"Рейтинг: {Rating}");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override bool MatchesSearch(string searchTerm)
+    {
+        return Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               FilmStudio.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Rating.Contains(searchTerm);
+    }
+}
+
+public class Audiobook : LibraryItem
+{
+    public int DurationMinutes { get; private set; }
+    public string Narrator { get; private set; }
+    public string Format { get; private set; }
+
+    public Audiobook(string title, string author, int year, string itemId, int durationMinutes, string narrator, string format)
+        : base(title, author, year, itemId)
+    {
+        DurationMinutes = durationMinutes;
+        Narrator = narrator;
+        Format = format;
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Тип: Аудиокнига");
+        Console.WriteLine($"Диктор: {Narrator}");
+        Console.WriteLine($"Продолжительность: {DurationMinutes} мин.");
+        Console.WriteLine($"Формат: {Format}");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override bool MatchesSearch(string searchTerm)
+    {
+        return Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Narrator.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+               Format.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+public class Library
+{
+    private List<LibraryItem> _items;
+
+    public Library()
+    {
+        _items = new List<LibraryItem>();
+    }
+
+    public void AddItem(LibraryItem item)
+    {
+        _items.Add(item);
+        Console.WriteLine($"Добавлен материал: {item.Title}");
+    }
+
+    public List<LibraryItem> Search(string searchTerm)
+    {
+        var results = new List<LibraryItem>();
+        foreach (var item in _items)
+        {
+            if (item.MatchesSearch(searchTerm))
+            {
+                results.Add(item);
+            }
+        }
+        return results;
+    }
+
+    public List<T> SearchByType<T>(string searchTerm) where T : LibraryItem
+    {
+        var results = new List<T>();
+        foreach (var item in _items)
+        {
+            if (item is T typedItem && typedItem.MatchesSearch(searchTerm))
+            {
+                results.Add(typedItem);
+            }
+        }
+        return results;
+    }
+
+    public void DisplayAllItems()
+    {
+        Console.WriteLine("=== ВСЕ МАТЕРИАЛЫ БИБЛИОТЕКИ ===");
+        foreach (var item in _items)
+        {
+            item.DisplayInfo();
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("=== Библиотечная система ===\n");
+
+        Library library = new Library();
+
+        library.AddItem(new Book("Война и мир", "Лев Толстой", 1869, "BK001", 1225, "978-5-389-08245-8", "Роман"));
+        library.AddItem(new Book("Преступление и наказание", "Федор Достоевский", 1866, "BK002", 672, "978-5-17-087888-8", "Психологический роман"));
+        library.AddItem(new Magazine("National Geographic", "National Geographic Society", 2023, "MG001", 245, "Ежемесячный"));
+        library.AddItem(new DVD("Интерстеллар", "Кристофер Нолан", 2014, "DV001", 169, "PG-13", "Warner Bros."));
+        library.AddItem(new Audiobook("1984", "Джордж Оруэлл", 1949, "AB001", 583, "Иван Иванов", "MP3"));
+
+        Console.WriteLine();
+
+        Console.WriteLine("1. Поиск 'Толстой' по всем материалам:");
+        var searchResults = library.Search("Толстой");
+        foreach (var item in searchResults)
+        {
+            item.DisplayInfo();
+        }
+
+        Console.WriteLine("\n2. Поиск 'роман' по всем материалам:");
+        searchResults = library.Search("роман");
+        foreach (var item in searchResults)
+        {
+            item.DisplayInfo();
+        }
+
+        Console.WriteLine("\n3. Поиск книг по 'достоевский':");
+        var bookResults = library.SearchByType<Book>("достоевский");
+        foreach (var book in bookResults)
+        {
+            book.DisplayInfo();
+        }
+
+        Console.WriteLine("\n4. Демонстрация выдачи и возврата:");
+        var bookToCheckOut = library.SearchByType<Book>("Война и мир")[0];
+        bookToCheckOut.CheckOut();
+        bookToCheckOut.DisplayInfo();
+
+        Console.WriteLine();
+        bookToCheckOut.Return();
+        bookToCheckOut.DisplayInfo();
+
+        Console.WriteLine("\n5. Все материалы библиотеки:");
+        library.DisplayAllItems();
+
+        Console.ReadLine();
+    }
+}
