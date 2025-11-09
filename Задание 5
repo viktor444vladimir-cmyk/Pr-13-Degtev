@@ -1,0 +1,480 @@
+using System;
+using System.Collections.Generic;
+
+public abstract class Animal
+{
+    protected string _species;
+    protected int _age;
+    protected string _habitat;
+    protected string _diet;
+    protected bool _isHungry;
+
+    public string Species => _species;
+    public int Age => _age;
+    public string Habitat => _habitat;
+    public string Diet => _diet;
+    public bool IsHungry => _isHungry;
+    public string Name { get; protected set; }
+    public double Weight { get; protected set; }
+
+    protected Animal(string name, string species, int age, double weight, string habitat, string diet)
+    {
+        Name = name;
+        _species = species;
+        _age = age;
+        Weight = weight;
+        _habitat = habitat;
+        _diet = diet;
+        _isHungry = true;
+    }
+
+    public virtual void Eat()
+    {
+        if (!_isHungry)
+        {
+            Console.WriteLine($"{Name} не голоден(а)");
+            return;
+        }
+
+        Console.WriteLine($"{Name} ест {_diet}");
+        _isHungry = false;
+    }
+
+    public virtual void Sleep()
+    {
+        Console.WriteLine($"{Name} спит");
+    }
+
+    public virtual void Move()
+    {
+        Console.WriteLine($"{Name} перемещается");
+    }
+
+    public virtual void MakeSound()
+    {
+        Console.WriteLine($"{Name} издает звук");
+    }
+
+    public void SetHungry()
+    {
+        _isHungry = true;
+        Console.WriteLine($"{Name} проголодался(ась)");
+    }
+
+    public abstract void DisplayInfo();
+    public abstract void PerformUniqueAction();
+
+    public virtual string GetFeedingSchedule()
+    {
+        return "Общий график кормления: 2 раза в день";
+    }
+
+    protected void Grow()
+    {
+        _age++;
+        Console.WriteLine($"{Name} стал(а) старше на год. Теперь ему(ей) {_age} лет");
+    }
+}
+
+public class Mammal : Animal
+{
+    public string FurType { get; private set; }
+    public int GestationPeriod { get; private set; }
+    public bool IsPredator { get; private set; }
+    public string SocialStructure { get; private set; }
+
+    public Mammal(string name, string species, int age, double weight, string habitat,
+                 string diet, string furType, int gestationPeriod, bool isPredator, string socialStructure)
+        : base(name, species, age, weight, habitat, diet)
+    {
+        FurType = furType;
+        GestationPeriod = gestationPeriod;
+        IsPredator = isPredator;
+        SocialStructure = socialStructure;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine($"=== Млекопитающее ===");
+        Console.WriteLine($"Имя: {Name}");
+        Console.WriteLine($"Вид: {_species}");
+        Console.WriteLine($"Возраст: {_age} лет");
+        Console.WriteLine($"Вес: {Weight} кг");
+        Console.WriteLine($"Среда обитания: {_habitat}");
+        Console.WriteLine($"Рацион: {_diet}");
+        Console.WriteLine($"Тип меха: {FurType}");
+        Console.WriteLine($"Продолжительность беременности: {GestationPeriod} месяцев");
+        Console.WriteLine($"Хищник: {(IsPredator ? "Да" : "Нет")}");
+        Console.WriteLine($"Социальная структура: {SocialStructure}");
+        Console.WriteLine($"Голоден: {(_isHungry ? "Да" : "Нет")}");
+    }
+
+    public override void PerformUniqueAction()
+    {
+        Console.WriteLine($"{Name} кормит детенышей молоком");
+    }
+
+    public void GiveBirth()
+    {
+        Console.WriteLine($"{Name} рожает детенышей после {GestationPeriod} месяцев беременности");
+    }
+
+    public void RegulateBodyTemperature()
+    {
+        Console.WriteLine($"{Name} регулирует температуру тела");
+    }
+
+    public override string GetFeedingSchedule()
+    {
+        if (IsPredator)
+            return "График кормления хищника: 1 раз в день, живое мясо";
+        else
+            return "График кормления травоядного: 3 раза в день, растительная пища";
+    }
+}
+
+public class Bird : Animal
+{
+    public double Wingspan { get; private set; }
+    public string NestingType { get; private set; }
+    public bool CanFly { get; private set; }
+    public string BeakType { get; private set; }
+
+    public Bird(string name, string species, int age, double weight, string habitat,
+               string diet, double wingspan, string nestingType, bool canFly, string beakType)
+        : base(name, species, age, weight, habitat, diet)
+    {
+        Wingspan = wingspan;
+        NestingType = nestingType;
+        CanFly = canFly;
+        BeakType = beakType;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine($"=== Птица ===");
+        Console.WriteLine($"Имя: {Name}");
+        Console.WriteLine($"Вид: {_species}");
+        Console.WriteLine($"Возраст: {_age} лет");
+        Console.WriteLine($"Вес: {Weight} кг");
+        Console.WriteLine($"Среда обитания: {_habitat}");
+        Console.WriteLine($"Рацион: {_diet}");
+        Console.WriteLine($"Размах крыльев: {Wingspan} м");
+        Console.WriteLine($"Тип гнездования: {NestingType}");
+        Console.WriteLine($"Умеет летать: {(CanFly ? "Да" : "Нет")}");
+        Console.WriteLine($"Тип клюва: {BeakType}");
+        Console.WriteLine($"Голоден: {(_isHungry ? "Да" : "Нет")}");
+    }
+
+    public override void PerformUniqueAction()
+    {
+        if (CanFly)
+            Console.WriteLine($"{Name} летает в небе");
+        else
+            Console.WriteLine($"{Name} бегает по земле");
+    }
+
+    public override void Move()
+    {
+        if (CanFly)
+            Console.WriteLine($"{Name} летит по воздуху");
+        else
+            Console.WriteLine($"{Name} ходит по земле");
+    }
+
+    public void BuildNest()
+    {
+        Console.WriteLine($"{Name} строит гнездо типа: {NestingType}");
+    }
+
+    public void LayEggs()
+    {
+        Console.WriteLine($"{Name} откладывает яйца");
+    }
+
+    public void Molt()
+    {
+        Console.WriteLine($"{Name} линяет, сменяя оперение");
+    }
+
+    public override string GetFeedingSchedule()
+    {
+        switch (_diet.ToLower())
+        {
+            case "насекомые":
+                return "График кормления насекомоядных: 4 раза в день, живые насекомые";
+            case "зерно":
+                return "График кормления зерноядных: 3 раза в день, смесь зерен";
+            case "рыба":
+                return "График кормления рыбоядных: 2 раза в день, свежая рыба";
+            default:
+                return "График кормления птиц: 3 раза в день";
+        }
+    }
+}
+
+public class Reptile : Animal
+{
+    public string SkinType { get; private set; }
+    public double PreferredTemperature { get; private set; }
+    public bool IsVenomous { get; private set; }
+    public string BaskingBehavior { get; private set; }
+
+    public Reptile(string name, string species, int age, double weight, string habitat,
+                  string diet, string skinType, double preferredTemperature, bool isVenomous, string baskingBehavior)
+        : base(name, species, age, weight, habitat, diet)
+    {
+        SkinType = skinType;
+        PreferredTemperature = preferredTemperature;
+        IsVenomous = isVenomous;
+        BaskingBehavior = baskingBehavior;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine($"=== Рептилия ===");
+        Console.WriteLine($"Имя: {Name}");
+        Console.WriteLine($"Вид: {_species}");
+        Console.WriteLine($"Возраст: {_age} лет");
+        Console.WriteLine($"Вес: {Weight} кг");
+        Console.WriteLine($"Среда обитания: {_habitat}");
+        Console.WriteLine($"Рацион: {_diet}");
+        Console.WriteLine($"Тип кожи: {SkinType}");
+        Console.WriteLine($"Предпочтительная температура: {PreferredTemperature}°C");
+        Console.WriteLine($"Ядовитый: {(IsVenomous ? "Да" : "Нет")}");
+        Console.WriteLine($"Поведение на солнце: {BaskingBehavior}");
+        Console.WriteLine($"Голоден: {(_isHungry ? "Да" : "Нет")}");
+    }
+
+    public override void PerformUniqueAction()
+    {
+        Console.WriteLine($"{Name} греется на солнце при температуре {PreferredTemperature}°C");
+    }
+
+    public override void Move()
+    {
+        Console.WriteLine($"{Name} ползает или плавает");
+    }
+    public void ShedSkin()
+    {
+        Console.WriteLine($"{Name} сбрасывает кожу");
+    }
+
+    public void Bask()
+    {
+        Console.WriteLine($"{Name} принимает солнечные ванны: {BaskingBehavior}");
+    }
+
+    public void RegulateTemperature()
+    {
+        Console.WriteLine($"{Name} регулирует температуру тела через внешнюю среду");
+    }
+
+    public override string GetFeedingSchedule()
+    {
+        if (IsVenomous)
+            return "График кормления ядовитых рептилий: 1 раз в неделю, специальный корм";
+        else
+            return "График кормления рептилий: 2 раза в неделю, в зависимости от размера";
+    }
+}
+
+public class Fish : Animal
+{
+    public string ScaleType { get; private set; }
+    public double DepthRange { get; private set; }
+    public string WaterType { get; private set; }
+    public bool IsFreshwater { get; private set; }
+
+    public Fish(string name, string species, int age, double weight, string habitat,
+               string diet, string scaleType, double depthRange, string waterType, bool isFreshwater)
+        : base(name, species, age, weight, habitat, diet)
+    {
+        ScaleType = scaleType;
+        DepthRange = depthRange;
+        WaterType = waterType;
+        IsFreshwater = isFreshwater;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine($"=== Рыба ===");
+        Console.WriteLine($"Имя: {Name}");
+        Console.WriteLine($"Вид: {_species}");
+        Console.WriteLine($"Возраст: {_age} лет");
+        Console.WriteLine($"Вес: {Weight} кг");
+        Console.WriteLine($"Среда обитания: {_habitat}");
+        Console.WriteLine($"Рацион: {_diet}");
+        Console.WriteLine($"Тип чешуи: {ScaleType}");
+        Console.WriteLine($"Глубина обитания: до {DepthRange} м");
+        Console.WriteLine($"Тип воды: {WaterType}");
+        Console.WriteLine($"Пресноводная: {(IsFreshwater ? "Да" : "Нет")}");
+        Console.WriteLine($"Голоден: {(_isHungry ? "Да" : "Нет")}");
+    }
+
+    public override void PerformUniqueAction()
+    {
+        Console.WriteLine($"{Name} плавает на глубине до {DepthRange} метров");
+    }
+
+    public override void Move()
+    {
+        Console.WriteLine($"{Name} плавает в воде");
+    }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine($"{Name} не издает звуков (рыбы безмолвны)");
+    }
+
+    public void Swim()
+    {
+        Console.WriteLine($"{Name} плавает в {WaterType} воде");
+    }
+
+    public void ChangeDepth()
+    {
+        Console.WriteLine($"{Name} меняет глубину плавания");
+    }
+
+    public void School()
+    {
+        Console.WriteLine($"{Name} плавает в стае");
+    }
+
+    public override string GetFeedingSchedule()
+    {
+        string waterType = IsFreshwater ? "пресной" : "морской";
+        return $"График кормления {waterType} рыбы: 2 раза в день, специализированный корм";
+    }
+}
+
+public class Zoo
+{
+    private List<Animal> _animals;
+
+    public Zoo()
+    {
+        _animals = new List<Animal>();
+    }
+
+    public void AddAnimal(Animal animal)
+    {
+        _animals.Add(animal);
+        Console.WriteLine($"Животное {animal.Name} добавлено в зоопарк");
+    }
+
+    public void DisplayAllAnimals()
+    {
+        Console.WriteLine("=== ВСЕ ЖИВОТНЫЕ В ЗООПАРКЕ ===");
+        foreach (var animal in _animals)
+        {
+            animal.DisplayInfo();
+            Console.WriteLine("---------------------------");
+        }
+    }
+
+    public void PerformFeeding()
+    {
+        Console.WriteLine("=== ПРОЦЕСС КОРМЛЕНИЯ ===");
+        foreach (var animal in _animals)
+        {
+            if (animal.IsHungry)
+            {
+                Console.WriteLine($"Кормление {animal.Name}:");
+                Console.WriteLine($"  График: {animal.GetFeedingSchedule()}");
+                animal.Eat();
+            }
+            else
+            {
+                Console.WriteLine($"{animal.Name} не голоден(а)");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    public void MakeAllAnimalsPerformActions()
+    {
+        Console.WriteLine("=== ДЕЙСТВИЯ ЖИВОТНЫХ ===");
+        foreach (var animal in _animals)
+        {
+            animal.PerformUniqueAction();
+            animal.Move();
+            animal.MakeSound();
+            Console.WriteLine();
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("=== Система учета животных в зоопарке ===\n");
+
+        Zoo zoo = new Zoo();
+
+        Mammal lion = new Mammal("Симба", "Африканский лев", 5, 190, "Саванна",
+                                "Мясо", "Короткая шерсть", 4, true, "Прайд");
+
+        Bird eagle = new Bird("Орлан", "Белоголовый орлан", 3, 6, "Горы и леса",
+                             "Рыба и мелкие животные", 2.3, "Гнездо на деревьях", true, "Крючковатый");
+
+        Reptile snake = new Reptile("Змеюка", "Королевская змея", 2, 1.5, "Пустыня",
+                                   "Мелкие грызуны", "Чешуйчатая", 28, false, "На камнях");
+
+        Fish shark = new Fish("Акула", "Белая акула", 8, 1100, "Океан",
+                             "Рыба и тюлени", "Плакоидная", 300, "Соленая", false);
+
+        zoo.AddAnimal(lion);
+        zoo.AddAnimal(eagle);
+        zoo.AddAnimal(snake);
+        zoo.AddAnimal(shark);
+
+        Console.WriteLine();
+
+        zoo.DisplayAllAnimals();
+        Console.WriteLine();
+
+        zoo.PerformFeeding();
+        Console.WriteLine();
+
+        zoo.MakeAllAnimalsPerformActions();
+        Console.WriteLine();
+
+        Console.WriteLine("=== УНИКАЛЬНЫЕ МЕТОДЫ ===");
+        lion.GiveBirth();
+        lion.RegulateBodyTemperature();
+        Console.WriteLine();
+
+        eagle.BuildNest();
+        eagle.LayEggs();
+        eagle.Molt();
+        Console.WriteLine();
+
+        snake.ShedSkin();
+        snake.Bask();
+        snake.RegulateTemperature();
+        Console.WriteLine();
+
+        shark.Swim();
+        shark.ChangeDepth();
+        shark.School();
+        Console.WriteLine();
+
+        Console.WriteLine("=== ДЕМОНСТРАЦИЯ ПОЛИМОРФИЗМА ===");
+        Animal[] animals = { lion, eagle, snake, shark };
+
+        foreach (var animal in animals)
+        {
+            Console.WriteLine($"--- {animal.Name} ({animal.Species}) ---");
+            animal.Move();
+            animal.MakeSound();
+            animal.PerformUniqueAction();
+            Console.WriteLine($"График кормления: {animal.GetFeedingSchedule()}");
+            Console.WriteLine();
+        }
+
+        Console.ReadLine();
+    }
+}
