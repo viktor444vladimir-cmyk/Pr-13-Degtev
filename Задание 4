@@ -1,0 +1,422 @@
+using System;
+using System.Collections.Generic;
+
+public abstract class Course
+{
+    public string Title { get; protected set; }
+    public string Description { get; protected set; }
+    public string Author { get; protected set; }
+    public decimal Price { get; protected set; }
+    public string CourseId { get; protected set; }
+    public double Rating { get; protected set; }
+    public int StudentsCount { get; protected set; }
+    public bool IsPublished { get; protected set; }
+
+    protected Course(string courseId, string title, string description, string author, decimal price)
+    {
+        CourseId = courseId;
+        Title = title;
+        Description = description;
+        Author = author;
+        Price = price;
+        Rating = 0;
+        StudentsCount = 0;
+        IsPublished = false;
+    }
+
+    public virtual void Publish()
+    {
+        IsPublished = true;
+        Console.WriteLine($"Курс '{Title}' опубликован");
+    }
+
+    public virtual void EnrollStudent()
+    {
+        if (!IsPublished)
+            throw new InvalidOperationException("Невозможно записаться на неопубликованный курс");
+
+        StudentsCount++;
+        Console.WriteLine($"Студент записан на курс '{Title}'. Всего студентов: {StudentsCount}");
+    }
+
+    public virtual void DisplayCourseInfo()
+    {
+        Console.WriteLine($"=== Информация о курсе ===");
+        Console.WriteLine($"ID: {CourseId}");
+        Console.WriteLine($"Название: {Title}");
+        Console.WriteLine($"Автор: {Author}");
+        Console.WriteLine($"Описание: {Description}");
+        Console.WriteLine($"Цена: {Price:C}");
+        Console.WriteLine($"Рейтинг: {Rating}/5");
+        Console.WriteLine($"Студентов: {StudentsCount}");
+        Console.WriteLine($"Статус: {(IsPublished ? "Опубликован" : "Черновик")}");
+    }
+
+    public abstract void StartLearning();
+    public abstract void DisplayDetailedInfo();
+    public abstract double CalculateCompletionTime();
+    public abstract List<string> GetAdditionalServices();
+}
+
+public class VideoCourse : Course
+{
+    public int VideoCount { get; private set; }
+    public int TotalDurationMinutes { get; private set; }
+    public string VideoQuality { get; private set; }
+    public bool HasSubtitles { get; private set; }
+
+    public VideoCourse(string courseId, string title, string description, string author, decimal price,
+                      int videoCount, int totalDurationMinutes, string videoQuality, bool hasSubtitles)
+        : base(courseId, title, description, author, price)
+    {
+        VideoCount = videoCount;
+        TotalDurationMinutes = totalDurationMinutes;
+        VideoQuality = videoQuality;
+        HasSubtitles = hasSubtitles;
+    }
+
+    public override void StartLearning()
+    {
+        Console.WriteLine($"Запуск видеокурса '{Title}'");
+        Console.WriteLine($"Доступно {VideoCount} видео общей продолжительностью {TotalDurationMinutes} минут");
+        Console.WriteLine("Режим обучения: просмотр видео с возможностью паузы и перемотки");
+    }
+
+    public override void DisplayDetailedInfo()
+    {
+        base.DisplayCourseInfo();
+        Console.WriteLine($"Тип курса: Видеокурс");
+        Console.WriteLine($"Количество видео: {VideoCount}");
+        Console.WriteLine($"Общая продолжительность: {TotalDurationMinutes} минут");
+        Console.WriteLine($"Качество видео: {VideoQuality}");
+        Console.WriteLine($"Субтитры: {(HasSubtitles ? "Да" : "Нет")}");
+        Console.WriteLine($"Примерное время прохождения: {CalculateCompletionTime()} часов");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override double CalculateCompletionTime()
+    {
+        return Math.Round(TotalDurationMinutes / 60.0 * 1.5, 1); // +50% на практику
+    }
+
+    public override List<string> GetAdditionalServices()
+    {
+        var services = new List<string> { "Доступ к видео навсегда", "Сертификат об окончании" };
+
+        if (HasSubtitles)
+            services.Add("Субтитры на нескольких языках");
+
+        services.Add("Возможность скачивания видео");
+        services.Add("Обсуждения под каждым видео");
+
+        return services;
+    }
+
+    public void ChangePlaybackSpeed(string speed)
+    {
+        Console.WriteLine($"Скорость воспроизведения изменена на: {speed}");
+    }
+
+    public void DownloadVideo(int videoNumber)
+    {
+        Console.WriteLine($"Видео #{videoNumber} загружается...");
+    }
+}
+
+public class TextCourse : Course
+{
+    public int ChapterCount { get; private set; }
+    public int TotalPages { get; private set; }
+    public int ReadingLevel { get; private set; }
+    public bool HasExercises { get; private set; }
+
+    public TextCourse(string courseId, string title, string description, string author, decimal price,
+                     int chapterCount, int totalPages, int readingLevel, bool hasExercises)
+        : base(courseId, title, description, author, price)
+    {
+        ChapterCount = chapterCount;
+        TotalPages = totalPages;
+        ReadingLevel = readingLevel;
+        HasExercises = hasExercises;
+    }
+
+    public override void StartLearning()
+    {
+        Console.WriteLine($"Запуск текстового курса '{Title}'");
+        Console.WriteLine($"Доступно {ChapterCount} глав, {TotalPages} страниц");
+        Console.WriteLine("Режим обучения: чтение материала с возможностью выделения и заметок");
+
+        if (HasExercises)
+            Console.WriteLine("В курсе присутствуют практические упражнения");
+    }
+
+    public override void DisplayDetailedInfo()
+    {
+        base.DisplayCourseInfo();
+        Console.WriteLine($"Тип курса: Текстовый курс");
+        Console.WriteLine($"Количество глав: {ChapterCount}");
+        Console.WriteLine($"Объем текста: {TotalPages} страниц");
+        Console.WriteLine($"Уровень сложности: {ReadingLevel}/10");
+        Console.WriteLine($"Практические упражнения: {(HasExercises ? "Да" : "Нет")}");
+        Console.WriteLine($"Примерное время прохождения: {CalculateCompletionTime()} часов");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override double CalculateCompletionTime()
+    {
+        double readingTime = TotalPages * 5.0 / 60.0;
+        double exercisesTime = HasExercises ? ChapterCount * 0.5 : 0;
+        return Math.Round(readingTime + exercisesTime, 1);
+    }
+
+    public override List<string> GetAdditionalServices()
+    {
+        var services = new List<string> { "Пожизненный доступ к материалам", "PDF-версия курса" };
+
+        services.Add("Возможность делать заметки");
+        services.Add("Поиск по тексту");
+
+        if (HasExercises)
+            services.Add("Практические упражнения с ответами");
+
+        services.Add("Аудиоверсия материалов (опционально)");
+
+        return services;
+    }
+
+    public void SearchInText(string keyword)
+    {
+        Console.WriteLine($"Поиск по ключевому слову '{keyword}'... Найдено 15 упоминаний");
+    }
+
+    public void AddBookmark(int pageNumber)
+    {
+        Console.WriteLine($"Закладка добавлена на странице {pageNumber}");
+    }
+}
+
+public class InteractiveCourse : Course
+{
+    public int ExerciseCount { get; private set; }
+    public string CheckSystemType { get; private set; }
+    public bool HasLiveSessions { get; private set; }
+    public int MaxStudentsPerGroup { get; private set; }
+
+    public InteractiveCourse(string courseId, string title, string description, string author, decimal price,
+                           int exerciseCount, string checkSystemType, bool hasLiveSessions, int maxStudentsPerGroup)
+        : base(courseId, title, description, author, price)
+    {
+        ExerciseCount = exerciseCount;
+        CheckSystemType = checkSystemType;
+        HasLiveSessions = hasLiveSessions;
+        MaxStudentsPerGroup = maxStudentsPerGroup;
+    }
+
+    public override void StartLearning()
+    {
+        Console.WriteLine($"Запуск интерактивного курса '{Title}'");
+        Console.WriteLine($"Доступно {ExerciseCount} интерактивных упражнений");
+        Console.WriteLine($"Система проверки: {CheckSystemType}");
+        Console.WriteLine("Режим обучения: практические задания с мгновенной проверкой");
+
+        if (HasLiveSessions)
+            Console.WriteLine("Доступны живые сессии с преподавателем");
+    }
+
+    public override void DisplayDetailedInfo()
+    {
+        base.DisplayCourseInfo();
+        Console.WriteLine($"Тип курса: Интерактивный курс");
+        Console.WriteLine($"Количество упражнений: {ExerciseCount}");
+        Console.WriteLine($"Система проверки: {CheckSystemType}");
+        Console.WriteLine($"Живые сессии: {(HasLiveSessions ? "Да" : "Нет")}");
+        Console.WriteLine($"Максимум студентов в группе: {MaxStudentsPerGroup}");
+        Console.WriteLine($"Примерное время прохождения: {CalculateCompletionTime()} часов");
+        Console.WriteLine("---------------------------");
+    }
+
+    public override double CalculateCompletionTime()
+    {
+        double exercisesTime = ExerciseCount * 15.0 / 60.0;
+        double liveSessionsTime = HasLiveSessions ? ExerciseCount * 0.3 : 0;
+        return Math.Round(exercisesTime + liveSessionsTime, 1);
+    }
+
+    public override List<string> GetAdditionalServices()
+    {
+        var services = new List<string> { "Мгновенная проверка заданий", "Персональная обратная связь" };
+
+        services.Add("Прогресс отслеживания в реальном времени");
+        services.Add("Доступ к сообществу студентов");
+
+        if (HasLiveSessions)
+        {
+            services.Add("Живые онлайн-сессии");
+            services.Add("Личный наставник");
+        }
+
+        services.Add("Система достижений и бейджей");
+        services.Add("Подготовка портфолио");
+
+        return services;
+    }
+
+    public void SubmitExercise(int exerciseNumber, string solution)
+    {
+        Console.WriteLine($"Упражнение #{exerciseNumber} отправлено на проверку...");
+        Console.WriteLine("Результат: Верно! ✅");
+    }
+
+    public void RequestFeedback()
+    {
+        Console.WriteLine("Запрос обратной связи отправлен преподавателю");
+    }
+
+    public void JoinLiveSession()
+    {
+        if (HasLiveSessions)
+            Console.WriteLine("Подключение к живой сессии...");
+        else
+            Console.WriteLine("Живые сессии не доступны для этого курса");
+    }
+}
+
+public class LearningPlatform
+{
+    private List<Course> _courses;
+
+    public LearningPlatform()
+    {
+        _courses = new List<Course>();
+    }
+
+    public void AddCourse(Course course)
+    {
+        _courses.Add(course);
+        Console.WriteLine($"Курс '{course.Title}' добавлен на платформу");
+    }
+
+    public void DisplayAllCourses()
+    {
+        Console.WriteLine("=== ВСЕ КУРСЫ НА ПЛАТФОРМЕ ===");
+        foreach (var course in _courses)
+        {
+            course.DisplayDetailedInfo();
+        }
+    }
+
+    public void StartCourseLearning(string courseId)
+    {
+        var course = _courses.Find(c => c.CourseId == courseId);
+        if (course != null && course.IsPublished)
+        {
+            course.StartLearning();
+        }
+        else
+        {
+            Console.WriteLine("Курс не найден или не опубликован");
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("=== Система образовательных курсов ===\n");
+
+        LearningPlatform platform = new LearningPlatform();
+
+        VideoCourse videoCourse = new VideoCourse(
+            "VID001",
+            "C# для начинающих",
+            "Полный курс по основам C# и .NET",
+            "Иван Петров",
+            9900,
+            45,
+            900,
+            "1080p",
+            true
+        );
+
+        TextCourse textCourse = new TextCourse(
+            "TXT001",
+            "Алгоритмы и структуры данных",
+            "Углубленный курс по алгоритмам",
+            "Анна Сидорова",
+            7500,
+            12,
+            350,
+            7,
+            true
+        );
+
+        InteractiveCourse interactiveCourse = new InteractiveCourse(
+            "INT001",
+            "Веб-разработка на практике",
+            "Создание реальных проектов с наставником",
+            "Максим Орлов",
+            14900,
+            25,
+            "Автоматическая + код-ревью",
+            true,
+            15
+        );
+
+        platform.AddCourse(videoCourse);
+        platform.AddCourse(textCourse);
+        platform.AddCourse(interactiveCourse);
+
+        Console.WriteLine();
+
+        videoCourse.Publish();
+        textCourse.Publish();
+        interactiveCourse.Publish();
+
+        Console.WriteLine();
+
+        Console.WriteLine("1. Видеокурс:");
+        videoCourse.DisplayDetailedInfo();
+        videoCourse.StartLearning();
+        Console.WriteLine("Дополнительные сервисы: " + string.Join(", ", videoCourse.GetAdditionalServices()));
+        videoCourse.ChangePlaybackSpeed("1.5x");
+        Console.WriteLine();
+
+        Console.WriteLine("2. Текстовый курс:");
+        textCourse.DisplayDetailedInfo();
+        textCourse.StartLearning();
+        Console.WriteLine("Дополнительные сервисы: " + string.Join(", ", textCourse.GetAdditionalServices()));
+        textCourse.AddBookmark(45);
+        Console.WriteLine();
+
+        Console.WriteLine("3. Интерактивный курс:");
+        interactiveCourse.DisplayDetailedInfo();
+        interactiveCourse.StartLearning();
+        Console.WriteLine("Дополнительные сервисы: " + string.Join(", ", interactiveCourse.GetAdditionalServices()));
+        interactiveCourse.SubmitExercise(1, "public class Solution { }");
+        interactiveCourse.RequestFeedback();
+        Console.WriteLine();
+
+        Console.WriteLine("4. Запись студентов на курсы:");
+        videoCourse.EnrollStudent();
+        videoCourse.EnrollStudent();
+        textCourse.EnrollStudent();
+        interactiveCourse.EnrollStudent();
+        interactiveCourse.EnrollStudent();
+        interactiveCourse.EnrollStudent();
+        Console.WriteLine();
+
+        Console.WriteLine("5. Демонстрация полиморфизма:");
+        Course[] courses = { videoCourse, textCourse, interactiveCourse };
+
+        foreach (var course in courses)
+        {
+            Console.WriteLine($"--- {course.Title} ---");
+            course.StartLearning();
+            Console.WriteLine($"Время прохождения: {course.CalculateCompletionTime()} часов");
+            Console.WriteLine();
+        }
+
+        Console.ReadLine();
+    }
+}
