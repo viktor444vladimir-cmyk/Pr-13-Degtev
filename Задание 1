@@ -1,0 +1,150 @@
+using System;
+
+public class Employee
+{
+    public string Name { get; set; }
+    public string Position { get; set; }
+    public decimal Salary { get; set; }
+    public DateTime HireDate { get; set; }
+
+    public Employee(string name, string position, decimal salary, DateTime hireDate)
+    {
+        Name = name;
+        Position = position;
+        Salary = salary;
+        HireDate = hireDate;
+    }
+
+    public virtual void DisplayInfo()
+    {
+        Console.WriteLine($"Сотрудник: {Name}");
+        Console.WriteLine($"Должность: {Position}");
+        Console.WriteLine($"Зарплата: {Salary:C}");
+        Console.WriteLine($"Дата приема: {HireDate:dd.MM.yyyy}");
+    }
+
+    public virtual void Work()
+    {
+        Console.WriteLine($"{Name} выполняет свои обязанности");
+    }
+}
+
+public class Manager : Employee
+{
+    public int TeamSize { get; set; }
+
+    public Manager(string name, decimal salary, DateTime hireDate, int teamSize)
+        : base(name, "Менеджер", salary, hireDate)
+    {
+        TeamSize = teamSize;
+    }
+
+    public void ConductMeeting()
+    {
+        Console.WriteLine($"{Name} проводит собрание для команды из {TeamSize} человек");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Размер команды: {TeamSize} человек");
+    }
+
+    public override void Work()
+    {
+        Console.WriteLine($"{Name} управляет командой и координирует задачи");
+    }
+}
+public class Developer : Employee
+{
+    public string ProgrammingLanguage { get; set; }
+
+    public Developer(string name, decimal salary, DateTime hireDate, string programmingLanguage)
+        : base(name, "Разработчик", salary, hireDate)
+    {
+        ProgrammingLanguage = programmingLanguage;
+    }
+    public void WriteCode()
+    {
+        Console.WriteLine($"{Name} пишет код на {ProgrammingLanguage}");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Язык программирования: {ProgrammingLanguage}");
+    }
+
+    public override void Work()
+    {
+        Console.WriteLine($"{Name} разрабатывает программное обеспечение");
+    }
+}
+
+public class Director : Employee
+{
+    public string Department { get; set; }
+
+    public Director(string name, decimal salary, DateTime hireDate, string department)
+        : base(name, "Директор", salary, hireDate)
+    {
+        Department = department;
+    }
+
+    public void ApproveBudget()
+    {
+        Console.WriteLine($"{Name} утверждает бюджет для отдела {Department}");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine($"Отдел: {Department}");
+    }
+
+    public override void Work()
+    {
+        Console.WriteLine($"{Name} руководит отделом и принимает стратегические решения");
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("=== Система учета персонала ===\n");
+
+        Manager manager = new Manager("Анна Иванова", 150000, new DateTime(2020, 5, 15), 8);
+        Developer developer = new Developer("Петр Сидоров", 120000, new DateTime(2021, 3, 10), "C#");
+        Director director = new Director("Мария Петрова", 300000, new DateTime(2018, 1, 20), "ИТ");
+
+        Console.WriteLine("1. Менеджер:");
+        manager.DisplayInfo();
+        manager.Work();
+        manager.ConductMeeting();
+        Console.WriteLine();
+
+        Console.WriteLine("2. Разработчик:");
+        developer.DisplayInfo();
+        developer.Work();
+        developer.WriteCode();
+        Console.WriteLine();
+
+        Console.WriteLine("3. Директор:");
+        director.DisplayInfo();
+        director.Work();
+        director.ApproveBudget();
+        Console.WriteLine();
+
+        Console.WriteLine("4. Демонстрация полиморфизма:");
+        Employee[] employees = { manager, developer, director };
+
+        foreach (var employee in employees)
+        {
+            employee.Work();
+            Console.WriteLine();
+        }
+
+        Console.ReadLine();
+    }
+}
