@@ -1,0 +1,144 @@
+using System;
+
+public abstract class BankAccount
+{
+    public string AccountNumber { get; protected set; }
+    public decimal Balance { get; protected set; }
+    public string Owner { get; protected set; }
+    public DateTime OpenDate { get; protected set; }
+
+    protected BankAccount(string accountNumber, string owner, decimal initialBalance = 0)
+    {
+        AccountNumber = accountNumber;
+        Owner = owner;
+        Balance = initialBalance;
+        OpenDate = DateTime.Now;
+    }
+
+    public virtual void Deposit(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сумма пополнения должна быть положительной");
+
+        Balance += amount;
+        Console.WriteLine($"Счет {AccountNumber}: пополнение на {amount:C}. Новый баланс: {Balance:C}");
+    }
+
+    public virtual void Withdraw(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сумма снятия должна быть положительной");
+
+        if (amount > Balance)
+            throw new InvalidOperationException("Недостаточно средств на счете");
+
+        Balance -= amount;
+        Console.WriteLine($"Счет {AccountNumber}: снятие {amount:C}. Новый баланс: {Balance:C}");
+    }
+
+    public virtual void DisplayAccountInfo()
+    {
+        Console.WriteLine($"=== Информация о счете ===");
+        Console.WriteLine($"Владелец: {Owner}");
+        Console.WriteLine($"Номер счета: {AccountNumber}");
+        Console.WriteLine($"Баланс: {Balance:C}");
+        Console.WriteLine($"Дата открытия: {OpenDate:dd.MM.yyyy}");
+    }
+
+    public abstract void ApplyMonthlyOperations();
+}
+
+public class CheckingAccount : BankAccount
+{
+    public decimal OverdraftLimit { get; private set; }
+
+    public CheckingAccount(string accountNumber, string owner, decimal initialBalance = 0, decimal overdraftLimit = 0)
+        : base(accountNumber, owner, initialBalance)
+    {
+        OverdraftLimit = overdraftLimit;
+    }
+
+    public override void Withdraw(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сумма снятия должна быть положительной");
+
+        decimal availableBalance = Balance + OverdraftLimit;
+        if (amount > availableBalance)
+            throw new InvalidOperationException($"Превышен лимит овердрафта. Доступно: {availableBalance:C}");
+
+        Balance -= amount;
+        Console.WriteLine($"Текущий счет {AccountNumber}: снятие {amount:C}. Новый баланс: {Balance:C}");
+    }
+
+    public void SetOverdraftLimit(decimal newLimit)
+    {
+        OverdraftLimit = newLimit;
+        Console.WriteLine($"Установлен новый лимит овердрафта: {newLimit:C}");
+    }
+
+    public override void ApplyMonthlyOperations()
+    {
+        Console.WriteLine($"Текущий счет {AccountNumber}: ежемесячные операции не применяются");
+    }
+
+    public override void DisplayAccountInfo()
+    {
+        base.DisplayAccountInfo();
+        Console.WriteLine($"Тип счета: Текущий");
+        Console.WriteLine($"Лимит овердрафта: {OverdraftLimit:C}");
+        Console.WriteLine($"Доступно для снятия: {(Balance + OverdraftLimit):C}");
+    }
+}
+
+public class SavingsAccount : BankAccount
+{
+    public decimal InterestRate { get; private set; }
+
+    public SavingsAccount(string accountNumber, string owner, decimal initialBalance = 0, decimal interestRate = 0.03m)
+        : base(accountNumber, owner, initialBalance)
+    {
+        InterestRate = interestRate;
+    }
+
+    public override void Withdraw(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сумма снятия должна быть положительной");
+
+        if (amount > 10000)
+            throw new InvalidOperationException("Превышен лимит разового снятия для сберегательного счета");
+
+        if (amount > Balance)
+            throw new InvalidOperationException("Недостаточно средств на счете");
+
+        Balance -= amount;
+        Console.WriteLine($"Сберегательный счет {AccountNumber}: снятие {amount:C}. Новый баланс: {Balance:C}");
+    }
+
+    public void ApplyInterest()
+    {
+        decimal interest = Balance * InterestRate;
+        Balance += interest;
+        Console.WriteLine($"Начислены проценты: {interest:C}. Новый баланс: {Balance:C}");
+    }
+
+    public override void ApplyMonthlyOperations()
+    {
+        ApplyInterest();
+    }
+
+    public override void DisplayAccountInfo()
+    {
+        base.DisplayAccountInfo();
+        Console.WriteLine($"Тип счета: Сберегательный");
+        Console.WriteLine($"Процентная ставка: {InterestRate:P2}");
+        Console.WriteLine($"Ежемесячный доход: {(Balance * InterestRate):C}");
+    }
+}
+
+public class CreditAccount : BankAccount
+{
+    public decimal CreditLimit { get; private set; }
+    public DateTime DueDate { get; private set; }
+    public decimal MonthlyPayment { get; private set; }
